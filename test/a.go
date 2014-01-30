@@ -13,7 +13,7 @@ func test_listen() {
 			secret = "123456"
 			return
 		},
-		CbPass: func (user string, checkPass func (string)bool) (pairs []radius.Pair, err error) {
+		CbPass: func (user string, checkPass func (string) bool, nasip,userip,usermac,method string) (pairs []radius.Pair, err error) {
 			pass = "aaa"
 			pairs = append(pairs, radius.Pair{
 				Type: radius.FramedIP,
