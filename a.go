@@ -1,17 +1,16 @@
-
 package radius
 
 import (
-	"crypto/md5"
-	"time"
-	"net"
-	"fmt"
-	"log"
-	"io"
-	"os"
-	"io/ioutil"
-	"encoding/binary"
 	"bytes"
+	"crypto/md5"
+	"encoding/binary"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"net"
+	"os"
+	"time"
 )
 
 const (
@@ -66,20 +65,20 @@ type PacketCode byte
 type PairType byte
 
 type Pair struct {
-	Type PairType
-	Vendor uint32
+	Type       PairType
+	Vendor     uint32
 	VendorType PairType
-	Bytes []byte
-	Str string
-	Uint32 uint32
+	Bytes      []byte
+	Str        string
+	Uint32     uint32
 }
 
 type Packet struct {
-	Code PacketCode
-	Id byte
-	Auth []byte
-	Pairs []Pair
-	debug bool
+	Code   PacketCode
+	Id     byte
+	Auth   []byte
+	Pairs  []Pair
+	debug  bool
 	secret string
 	inauth []byte
 }
@@ -101,7 +100,7 @@ func (m *Packet) fillPass(pass string) (buf []byte) {
 		passLen = maxPassLen
 	}
 
-	padLen := (passLen + (authLen-1)) & (^(authLen-1))
+	padLen := (passLen + (authLen - 1)) & (^(authLen - 1))
 	passBuf := make([]byte, maxPassLen)
 	copy(passBuf, []byte(pass))
 
@@ -114,7 +113,7 @@ func (m *Packet) fillPass(pass string) (buf []byte) {
 		for j := i; j < i+authLen; j++ {
 			buf[j] ^= passBuf[j]
 		}
-		vec = buf[i:i+authLen]
+		vec = buf[i : i+authLen]
 	}
 
 	return
@@ -125,7 +124,7 @@ func (m *Packet) encodeVendor(w io.Writer, p Pair) {
 	case MikrotikRateLimit:
 		p.Bytes = []byte(p.Str)
 	}
-	w.Write([]byte{byte(p.VendorType), byte(len(p.Bytes)+2)})
+	w.Write([]byte{byte(p.VendorType), byte(len(p.Bytes) + 2)})
 	w.Write(p.Bytes)
 }
 
@@ -135,9 +134,9 @@ func (m *Packet) Encode() (ret []byte, err error) {
 	for _, p := range m.Pairs {
 		switch p.Type {
 		case ServiceType, FramedProtocol,
-				 SessionTimeout,
-				 NasPort, NasPortTYpe, NasPortId,
-				 NasIpAddr:
+			SessionTimeout,
+			NasPort, NasPortTYpe, NasPortId,
+			NasIpAddr:
 			b := new(bytes.Buffer)
 			binary.Write(b, binary.BigEndian, p.Uint32)
 			p.Bytes = b.Bytes()
@@ -162,7 +161,7 @@ func (m *Packet) Encode() (ret []byte, err error) {
 		}
 
 		data.WriteByte(byte(p.Type))
-		data.WriteByte(byte(len(p.Bytes)+2))
+		data.WriteByte(byte(len(p.Bytes) + 2))
 		data.Write(p.Bytes)
 	}
 
@@ -208,7 +207,9 @@ func (m *Packet) Decode(in []byte) (err error) {
 	l16 -= 4
 	r = io.LimitReader(r, int64(l16))
 
-	if m.debug { log.Println("len", l16) }
+	if m.debug {
+		log.Println("len", l16)
+	}
 
 	m.Auth = make([]byte, 16)
 	_, err = r.Read(m.Auth)
@@ -231,9 +232,11 @@ func (m *Packet) Decode(in []byte) (err error) {
 			break
 		}
 
-		if m.debug { log.Printf("pair %x %d\n", p.Type, l8) }
+		if m.debug {
+			log.Printf("pair %x %d\n", p.Type, l8)
+		}
 
-		plen := int(l8)-2
+		plen := int(l8) - 2
 		if plen <= 0 {
 			err = fmt.Errorf("pair len < 0")
 			if f, err2 := os.Create("/tmp/radius-err-pkt"); err2 != nil {
@@ -253,12 +256,12 @@ func (m *Packet) Decode(in []byte) (err error) {
 		switch p.Type {
 
 		case ServiceType, FramedProtocol,
-				 NasPort, NasPortTYpe,
-				 AcctStatusType,
-				 AcctSessionTime,
-				 AcctInputPackets, AcctOutputPackets,
-				 AcctInputOctets, AcctOutputOctets,
-				 AcctInputGigawords, AcctOutputGigawords:
+			NasPort, NasPortTYpe,
+			AcctStatusType,
+			AcctSessionTime,
+			AcctInputPackets, AcctOutputPackets,
+			AcctInputOctets, AcctOutputOctets,
+			AcctInputGigawords, AcctOutputGigawords:
 			err = binary.Read(br, binary.BigEndian, &p.Uint32)
 			if err != nil {
 				return
@@ -272,8 +275,8 @@ func (m *Packet) Decode(in []byte) (err error) {
 			p.Str = fmt.Sprintf("%d.%d.%d.%d", p.Bytes[0], p.Bytes[1], p.Bytes[2], p.Bytes[3])
 
 		case UserName, NasPortId, NasIdentifier,
-				 CalledStationId, CallingStationId,
-				 ReplyMessage:
+			CalledStationId, CallingStationId,
+			ReplyMessage:
 			p.Str = string(p.Bytes)
 
 		}
@@ -322,10 +325,18 @@ func (m *Listener) handle(in *Packet, secret string, addr *net.UDPAddr) (out *Pa
 		chapChal := []byte{}
 
 		for _, p := range in.Pairs {
-			if p.Type == UserName { name = p.Str }
-			if p.Type == UserPass { passBuf = p.Bytes }
-			if p.Type == ChapPass { chapPass = p.Bytes }
-			if p.Type == ChapChallenge { chapChal = p.Bytes }
+			if p.Type == UserName {
+				name = p.Str
+			}
+			if p.Type == UserPass {
+				passBuf = p.Bytes
+			}
+			if p.Type == ChapPass {
+				chapPass = p.Bytes
+			}
+			if p.Type == ChapChallenge {
+				chapChal = p.Bytes
+			}
 		}
 
 		if name == "" {
@@ -335,16 +346,16 @@ func (m *Listener) handle(in *Packet, secret string, addr *net.UDPAddr) (out *Pa
 			return
 		}
 
-		checkPassNormal := func (pass string) bool {
+		checkPassNormal := func(pass string) bool {
 			b := in.fillPass(pass)
 			return bytes.Compare(b, passBuf) == 0
 		}
-		checkPassChap := func (pass string) bool {
+		checkPassChap := func(pass string) bool {
 			a := in.fillPassChap(chapPass[0], pass, chapChal)
 			b := chapPass[1:17]
 			return bytes.Compare(a, b) == 0
 		}
-		var checkPass func (pass string) bool
+		var checkPass func(pass string) bool
 		var method string
 
 		switch {
@@ -385,7 +396,7 @@ func (m *Listener) handle(in *Packet, secret string, addr *net.UDPAddr) (out *Pa
 			case AcctStatusType:
 				info.Op = p.Uint32
 			case UserName:
-					info.User = p.Str
+				info.User = p.Str
 			case AcctInputPackets:
 				info.InPkts += uint64(p.Uint32)
 			case AcctOutputPackets:
@@ -395,11 +406,11 @@ func (m *Listener) handle(in *Packet, secret string, addr *net.UDPAddr) (out *Pa
 			case AcctOutputOctets:
 				info.OutBytes += uint64(p.Uint32)
 			case AcctInputGigawords:
-				info.InBytes += uint64(p.Uint32)<<30
+				info.InBytes += uint64(p.Uint32) << 30
 			case AcctOutputGigawords:
-				info.OutBytes += uint64(p.Uint32)<<30
+				info.OutBytes += uint64(p.Uint32) << 30
 			case AcctSessionTime:
-				info.Dur = time.Second*time.Duration(p.Uint32)
+				info.Dur = time.Second * time.Duration(p.Uint32)
 			}
 		}
 		m.CbAcct(info)
@@ -411,18 +422,18 @@ func (m *Listener) handle(in *Packet, secret string, addr *net.UDPAddr) (out *Pa
 }
 
 type AcctInfo struct {
-	Op uint32
-	InBytes,OutBytes uint64
-	InPkts,OutPkts uint64
-	User string
-	Dur time.Duration
-	Ip, NasIp, Mac string
-	Cause uint32
+	Op                uint32
+	InBytes, OutBytes uint64
+	InPkts, OutPkts   uint64
+	User              string
+	Dur               time.Duration
+	Ip, NasIp, Mac    string
+	Cause             uint32
 }
 
-type cbConn func (addr *net.UDPAddr) (string, error)
-type cbPass func (user string, checkPass func(string)bool, nasip,userip,usermac,method string) ([]Pair, error)
-type cbAcct func (info AcctInfo)
+type cbConn func(addr *net.UDPAddr) (string, error)
+type cbPass func(user string, checkPass func(string) bool, nasip, userip, usermac, method string) ([]Pair, error)
+type cbAcct func(info AcctInfo)
 
 type Listener struct {
 	CbConn cbConn
@@ -462,7 +473,7 @@ func Disconnect(user, nasip string) (err error) {
 		return
 	}
 
-	socket.SetReadDeadline(time.Now().Add(time.Second*5))
+	socket.SetReadDeadline(time.Now().Add(time.Second * 5))
 	rb := make([]byte, 4096)
 	var read int
 	read, err = socket.Read(rb)
@@ -493,7 +504,6 @@ func (m *Listener) listen(port int) {
 		return
 	}
 	defer socket.Close()
-
 
 	for {
 		data := make([]byte, 4096)
@@ -574,7 +584,7 @@ func test_password() {
 		passLen = maxPassLen
 	}
 
-	padLen := (passLen + (authLen-1)) & (^(authLen-1))
+	padLen := (passLen + (authLen - 1)) & (^(authLen - 1))
 	passBuf := make([]byte, maxPassLen)
 	copy(passBuf, []byte(pass))
 
@@ -590,7 +600,7 @@ func test_password() {
 		for j := i; j < i+authLen; j++ {
 			buf[j] ^= passBuf[j]
 		}
-		vec = buf[i:i+authLen]
+		vec = buf[i : i+authLen]
 	}
 
 	for _, p := range pkt.Pairs {
@@ -601,4 +611,3 @@ func test_password() {
 	log.Printf("mypass  %x\n", buf)
 	log.Printf("mypas2  %x\n", pkt.fillPass(pass))
 }
-
