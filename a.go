@@ -15,50 +15,50 @@ import (
 )
 
 const (
-	UserName = PairType(1)
-	UserPass = PairType(2)
-	ChapPass = PairType(3)
-	ChapChallenge = PairType(60)
-	NasIpAddr = PairType(4)
-	NasPort = PairType(5)
-	ServiceType = PairType(6)
-	FramedProtocol = PairType(7)
-	FramedIP = PairType(8)
-	NasPortTYpe = PairType(61)
-	NasPortId = PairType(87)
-	VendorSpecific = PairType(26)
-	SessionTimeout = PairType(27)
-	NasIdentifier = PairType(32)
+	UserName       PairType = 1
+	UserPass                = 2
+	ChapPass                = 3
+	ChapChallenge           = 60
+	NasIpAddr               = 4
+	NasPort                 = 5
+	ServiceType             = 6
+	FramedProtocol          = 7
+	FramedIP                = 8
+	NasPortTYpe             = 61
+	NasPortId               = 87
+	VendorSpecific          = 26
+	SessionTimeout          = 27
+	NasIdentifier           = 32
 
-	ReplyMessage = PairType(18)
+	ReplyMessage PairType = 18
 
-	AcctStart = uint32(1)
-	AcctStop = uint32(2)
-	AcctInterim = uint32(3)
+	AcctStart   uint32 = 1
+	AcctStop           = 2
+	AcctInterim        = 3
 
-	AcctSessionId = PairType(44)
-	AcctStatusType = PairType(40)
-	AcctSessionTime = PairType(46)
-	AcctInputOctets = PairType(42)
-	AcctInputGigawords = PairType(52)
-	AcctInputPackets = PairType(47)
-	AcctOutputOctets = PairType(43)
-	AcctOutputGigawords = PairType(53)
-	AcctOutputPackets = PairType(48)
-	AcctTerminateCause = PairType(40)
+	AcctSessionId       PairType = 44
+	AcctStatusType               = 40
+	AcctSessionTime              = 46
+	AcctInputOctets              = 42
+	AcctInputGigawords           = 52
+	AcctInputPackets             = 47
+	AcctOutputOctets             = 43
+	AcctOutputGigawords          = 53
+	AcctOutputPackets            = 48
+	AcctTerminateCause           = 40
 
-	VendorMikrotik = uint32(14988)
+	VendorMikrotik    = uint32(14988)
 	MikrotikRateLimit = PairType(8)
 
-	CallingStationId = PairType(31)
-	CalledStationId = PairType(30)
+	CallingStationId PairType = 31
+	CalledStationId           = 30
 
-	AccessRequest = PacketCode(1)
-	AccessAccept = PacketCode(2)
-	AccessReject = PacketCode(3)
-	AcctRequest = PacketCode(4)
-	AcctResponse = PacketCode(5)
-	DisconnectRequest = PacketCode(40)
+	AccessRequest     PacketCode = 1
+	AccessAccept                 = 2
+	AccessReject                 = 3
+	AcctRequest                  = 4
+	AcctResponse                 = 5
+	DisconnectRequest            = 40
 )
 
 type VendorCode uint32
