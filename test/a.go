@@ -14,7 +14,6 @@ func test_listen() {
 			return
 		},
 		CbPass: func (user string, checkPass func (string) bool, nasip,userip,usermac,method string) (pairs []radius.Pair, err error) {
-			pass = "aaa"
 			pairs = append(pairs, radius.Pair{
 				Type: radius.FramedIP,
 				Str: "1.2.2.3",
